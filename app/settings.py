@@ -8,3 +8,4 @@ class Settings(BaseSettings):
     JWT_DECODE_ALGORITHM: str = "HS256"
     SESSION_SECRET_KEY: str = "session-secret-key"
 
+    REFERRAL_CODE_DEFAULT_LIFETIME_MINUTES: int = 1440
