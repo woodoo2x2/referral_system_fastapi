@@ -6,6 +6,7 @@ from app.database.session import get_db_session
 from app.users.repository import UserRepository
 from app.auth.service import AuthService
 from app.settings import Settings
+from app.referral.service import ReferralService
 
 
 def get_app_security() -> Security:
@@ -25,3 +26,8 @@ def get_auth_service(
     return AuthService(user_repository=user_repository,
                        security=security,
                        settings=Settings())
+
+def get_referral_service(
+user_repository: UserRepository = Depends(get_user_repository),
+):
+    return ReferralService(user_repository=user_repository)

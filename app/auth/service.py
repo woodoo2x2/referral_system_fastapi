@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
-from jose import jwt
+from jose import jwt, ExpiredSignatureError, JWTError
 from pydantic import EmailStr
 
-from app.auth.exceptions import PasswordIsIncorrectException
+from app.auth.exceptions import PasswordIsIncorrectException, AccessTokenExpiredException, \
+    AccessTokenIsInvalidException, TokenNotFoundException
 from app.auth.utils import Security
 from app.settings import Settings
 from app.users.exceptions import UserWithThisEmailNotExistException, UserWithThisEmailAlreadyExistException
@@ -42,8 +43,25 @@ class AuthService:
         expire_time_unix = (
                 datetime.utcnow() + timedelta(minutes=self.settings.ACCESS_TOKEN_EXPIRE_MINUTES)).timestamp()
         token = jwt.encode(
-            {"email": email, "expire": expire_time_unix},
+            {"email": email, "exp": expire_time_unix},
             self.settings.JWT_SECRET_KEY,
             algorithm=self.settings.JWT_DECODE_ALGORITHM,
         )
         return token
+
+    def decode_jwt(self, token: str) -> dict:
+        payload = jwt.decode(
+            token,
+            self.settings.JWT_SECRET_KEY,
+            algorithms=[self.settings.JWT_DECODE_ALGORITHM],
+            options={"verify_exp": False}  # Отключаем встроенную проверку
+        )
+        current_time = datetime.utcnow().timestamp()
+        if payload['exp'] < current_time:
+            raise AccessTokenExpiredException()
+        return payload
+
+    async def get_current_user_email(self, token: str) -> str:
+        payload = self.decode_jwt(token)
+        return payload['email']
+

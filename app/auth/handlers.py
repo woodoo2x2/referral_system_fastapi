@@ -32,7 +32,6 @@ async def registration_handler(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
 
 
-
 @router.post('/login',
              status_code=status.HTTP_200_OK,
              description='Authorize to API',
@@ -53,3 +52,11 @@ async def login_handler(
         )
     except ApplicationException as exception:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
+
+@router.post("/logout")
+async def logout(request: Request):
+    if "access_token" in request.session:
+        request.session.pop("access_token")
+        return {"message": "Logout successful"}
+    else:
+        return  {"message": "No active session found"}

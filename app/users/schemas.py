@@ -31,3 +31,15 @@ class UserSuccessfullyAuthorizedSchema(BaseModel):
 class UserLoginResponse(BaseModel):
     your_email: EmailStr
     your_access_token: str
+
+
+class UserCreateReferralCodeResponseSchema(BaseModel):
+    your_id: int
+    your_email: EmailStr
+    your_referral_code: str
+
+    @classmethod
+    def from_user(cls, user: User):
+        return cls(your_id=user.id,
+                   your_email=user.email,
+                   your_referral_code=user.referral_code)

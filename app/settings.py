@@ -6,4 +6,5 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     JWT_SECRET_KEY: str = "your-secret-key"
     JWT_DECODE_ALGORITHM: str = "HS256"
-    SESSION_SECRET_KEY : str = "session-secret-key"
+    SESSION_SECRET_KEY: str = "session-secret-key"
+
