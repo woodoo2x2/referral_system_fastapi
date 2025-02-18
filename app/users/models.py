@@ -14,6 +14,6 @@ class User(Base):
     password = Column(String, nullable=False)
     registration_date = Column(DateTime, default=datetime.utcnow)
 
-    referral_code  = Column(String, nullable=True, default=None)
+    referral_code = Column(String, nullable=True, default=None)
     referral_code_expires_at = Column(DateTime, nullable=True)
-    inviter_code  = Column(String, nullable=True, default=None)
+    inviter_id = Column(Integer, nullable=True, default=None)

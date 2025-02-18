@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from app.exceptions import ApplicationException
 
 
-@dataclass(frozen=True, eq=False)
+@dataclass(frozen=True,eq=False)
 class UserWithThisEmailAlreadyExistException(ApplicationException):
     email: str
 
@@ -12,7 +12,7 @@ class UserWithThisEmailAlreadyExistException(ApplicationException):
         return f"User with email:{self.email} already exist"
 
 
-@dataclass(frozen=True, eq=False)
+@dataclass(frozen=True,eq=False)
 class UserWithThisEmailNotExistException(ApplicationException):
     email: str
 

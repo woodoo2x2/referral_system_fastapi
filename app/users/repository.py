@@ -9,12 +9,7 @@ from app.auth.utils import Security
 from app.referral.exceptions import ReferralCodeForThisUserAlreadyExist, ReferralCodeNotExistException, \
     ReferralCodeExpiresException
 from app.users.models import User
-from app.users.schemas import UserCreateRequestSchema
-
-
-@dataclass
-class ReferralCodeAlreadyExistsException(Exception):
-    referral_code: str
+from app.users.schemas import UserCreateRequestSchema, RegistrationAsReferralRequestSchema
 
 
 @dataclass
@@ -61,7 +56,7 @@ class UserRepository:
         )
         return updated_user.scalar()
 
-    async def get_user_referral_code(self, user_email: str):
+    async def check_referral_code_expired(self, user_email: str):
         user: User = await self.get_user_by_email(user_email)
 
         if not user.referral_code:
@@ -71,11 +66,33 @@ class UserRepository:
             raise ReferralCodeExpiresException(user.email)
         return user.referral_code
 
+    async def get_referral_code_by_user_email(self, user_email: str):
+        return await self.check_referral_code_expired(user_email)
+
     async def delete_user_referral_code(self, user_email: str):
         query = update(User).where(User.email == user_email).values(
             referral_code=None,
-            referral_code_expires_at = None
+            referral_code_expires_at=None
         )
         async with self.db_session as session:
             await session.execute(query)
             await session.commit()
+
+    async def get_user_by_referral_code(self, referral_code: str) -> User | None:
+        query = select(User).where(User.referral_code == referral_code)
+        async with self.db_session as session:
+            user = (await session.execute(query)).scalar_one_or_none()
+        return user
+
+    async def create_user_as_referral(self, data: RegistrationAsReferralRequestSchema, inviter_user_id: int):
+        query = insert(User).values(
+            username=data.username,
+            email=data.email,
+            password=self.security.hash_password(data.password),
+            inviter_id=inviter_user_id,
+        ).returning(User)
+        async with self.db_session as session:
+            new_user = (await session.execute(query)).scalar()
+            await session.commit()
+
+        return new_user

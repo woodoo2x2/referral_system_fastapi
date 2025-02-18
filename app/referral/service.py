@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 
 from app.referral.exceptions import DeleteNotExistedReferralCodeException
-from app.users.repository import UserRepository
 from app.users.models import User
+from app.users.repository import UserRepository
 
 
 @dataclass
@@ -24,13 +24,12 @@ class ReferralService:
         return user
 
     async def get_referral_code(self, user_email: str):
-        return await self.user_repository.get_user_referral_code(user_email)
+        return await self.user_repository.check_referral_code_expired(user_email)
 
     async def delete_referral_code(self, user_email: str):
-        referral_code = await self.get_referral_code(user_email)
+        referral_code = await self.user_repository.get_referral_code_by_user_email(user_email)
 
         if not referral_code:
             raise DeleteNotExistedReferralCodeException()
         await self.user_repository.delete_user_referral_code(user_email)
         return referral_code
-

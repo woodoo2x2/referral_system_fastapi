@@ -1,14 +1,17 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette import status
+from starlette.exceptions import HTTPException
 from starlette.requests import Request
 
+from app.auth.exceptions import TokenNotFoundException
 from app.auth.service import AuthService
 from app.auth.utils import Security
 from app.database.session import get_db_session
+from app.exceptions import ApplicationException
 from app.referral.service import ReferralService
 from app.settings import Settings
 from app.users.repository import UserRepository
-from app.auth.exceptions import TokenNotFoundException
 
 
 def get_app_security() -> Security:
@@ -44,8 +47,8 @@ async def get_current_user_email(
         access_token = request.session['access_token']
     except KeyError:
         raise TokenNotFoundException()
-
-    user_email = await auth_service.get_current_user_email(access_token)
-    return user_email
-
-
+    try:
+        user_email = await auth_service.get_current_user_email(access_token)
+        return user_email
+    except ApplicationException as exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})

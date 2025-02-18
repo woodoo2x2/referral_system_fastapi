@@ -3,13 +3,12 @@ from starlette import status
 from starlette.requests import Request
 
 from app.auth.schemas import ErrorSchema
-from app.dependency import get_user_repository, get_auth_service
-from app.exceptions import ApplicationException
-from app.users.models import User
-from app.users.repository import UserRepository
-from app.users.schemas import UserCreateRequestSchema, UserResponseSchema, LoginUserRequestSchema, \
-    UserSuccessfullyAuthorizedSchema, UserLoginResponse
 from app.auth.service import AuthService
+from app.dependency import get_auth_service
+from app.exceptions import ApplicationException
+from app.users.schemas import UserCreateRequestSchema, UserResponseSchema, LoginUserRequestSchema, \
+    UserSuccessfullyAuthorizedSchema, UserLoginResponse, RegistrationAsReferralRequestSchema, \
+    RegistrationAsReferralResponseSchema
 
 router = APIRouter(prefix='/auth', tags=['auth'])
 
@@ -53,10 +52,24 @@ async def login_handler(
     except ApplicationException as exception:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
 
+
 @router.post("/logout")
 async def logout(request: Request):
     if "access_token" in request.session:
         request.session.pop("access_token")
         return {"message": "Logout successful"}
     else:
-        return  {"message": "No active session found"}
+        return {"message": "No active session found"}
+
+
+@router.post("/registration_as_referral")
+async def registration_as_referral_handler(
+        data: RegistrationAsReferralRequestSchema,
+        auth_service: AuthService = Depends(get_auth_service),
+) -> RegistrationAsReferralResponseSchema:
+    try:
+        new_user = await auth_service.registration_as_referral(data)
+        return RegistrationAsReferralResponseSchema.from_user(new_user)
+    except ApplicationException as exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
+
