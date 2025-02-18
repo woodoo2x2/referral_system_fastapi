@@ -28,13 +28,6 @@ class UserRepository:
 
         return new_user
 
-    async def check_if_user_already_uses_email(self, email: EmailStr) -> None:
-        query = select(User).where(User.email == email)
-        async with self.db_session as session:
-            user = (await session.execute(query)).scalar_one_or_none()
-        if user:
-            raise UserWithThisEmailAlreadyExistException(email)
-        return None
 
     async def get_user_by_email(self, email: EmailStr) -> User:
         query = select(User).where(User.email == email)

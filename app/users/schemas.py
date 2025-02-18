@@ -23,6 +23,11 @@ class LoginUserRequestSchema(BaseModel):
     password: str
 
 
-class UserSuccessfullyAuthorizedResponseSchema(BaseModel):
+class UserSuccessfullyAuthorizedSchema(BaseModel):
     email: EmailStr
     access_token: str
+
+
+class UserLoginResponse(BaseModel):
+    your_email: EmailStr
+    your_access_token: str
