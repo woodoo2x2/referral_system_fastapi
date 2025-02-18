@@ -54,7 +54,7 @@ class AuthService:
             token,
             self.settings.JWT_SECRET_KEY,
             algorithms=[self.settings.JWT_DECODE_ALGORITHM],
-            options={"verify_exp": False}  # Отключаем встроенную проверку
+            options={"verify_exp": False}
         )
         current_time = datetime.utcnow().timestamp()
         if payload['exp'] < current_time:

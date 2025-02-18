@@ -5,13 +5,14 @@ from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.utils import Security
+from app.referral.exceptions import ReferralCodeForThisUserAlreadyExist
 from app.users.models import User
 from app.users.schemas import UserCreateRequestSchema
-from app.referral.exceptions import ReferralCodeForThisUserAlreadyExist
+
 
 @dataclass
 class ReferralCodeAlreadyExistsException(Exception):
-    referral_code : str
+    referral_code: str
 
 
 @dataclass
@@ -38,7 +39,7 @@ class UserRepository:
             user = (await session.execute(query)).scalar_one_or_none()
         return user
 
-    async def create_referral_code_for_user(self, user_email:str, referral_code: str):
+    async def create_referral_code_for_user(self, user_email: str, referral_code: str):
         user = await self.get_user_by_email(user_email)
         if user.referral_code:
             raise ReferralCodeForThisUserAlreadyExist(user_id=user.id)
@@ -51,3 +52,14 @@ class UserRepository:
             select(User).where(User.email == user_email)
         )
         return updated_user.scalar()
+
+    async def get_user_referral_code(self, user_email: str):
+        user = await self.get_user_by_email(user_email)
+        return user.referral_code
+
+    async def delete_user_referral_code(self, user_email: str):
+        query = update(User).where(User.email == user_email).values(
+            referral_code=None)
+        async with self.db_session as session:
+            await session.execute(query)
+            await session.commit()

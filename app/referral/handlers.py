@@ -1,29 +1,47 @@
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
-from starlette.requests import Request
 
 from app.auth.service import AuthService
-from app.dependency import get_auth_service, get_referral_service
+from app.dependency import get_auth_service, get_referral_service, get_current_user_email
 from app.exceptions import ApplicationException
 from app.referral.service import ReferralService
 from app.users.schemas import UserCreateReferralCodeResponseSchema
+from app.referral.schemas import ReferralCodeResponseSchema
 
 router = APIRouter(prefix='/referral', tags=['referral'])
 
 
 @router.post('/')
 async def create_referral_code_for_me_handler(
-        request: Request,
-        auth_service: AuthService = Depends(get_auth_service),
-        referral_service: ReferralService = Depends(get_referral_service)
+        referral_service: ReferralService = Depends(get_referral_service),
+        user_email: str = Depends(get_current_user_email),
 ) -> UserCreateReferralCodeResponseSchema:
     try:
-        access_token = request.session['access_token']
-    except:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token was not found")
-    try:
-        user_email = await auth_service.get_current_user_email(access_token)
         updated_user = await referral_service.create_referral_code(user_email)
         return UserCreateReferralCodeResponseSchema.from_user(updated_user)
+    except ApplicationException as exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
+
+@router.get('/')
+async def get_my_referral_code(
+        referral_service: ReferralService = Depends(get_referral_service),
+        user_email: str = Depends(get_current_user_email),
+) -> ReferralCodeResponseSchema:
+    try:
+        referral_code = await referral_service.get_referral_code(user_email)
+        return ReferralCodeResponseSchema(referral_code=referral_code)
+    except ApplicationException as exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
+
+@router.delete('/')
+
+async def delete_my_referral_code(
+        referral_service: ReferralService = Depends(get_referral_service),
+        user_email: str = Depends(get_current_user_email),
+):
+
+    try:
+        referral_code = await referral_service.delete_referral_code(user_email)
+        return {"message": f"{referral_code} was successfully deleted"}
     except ApplicationException as exception:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
