@@ -5,7 +5,7 @@ from pydantic import EmailStr
 from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.utils import Security
+from app.auth.utils import SecurityConfig
 from app.referral.exceptions import ReferralCodeForThisUserAlreadyExist, ReferralCodeNotExistException, \
     ReferralCodeExpiresException
 from app.users.models import User
@@ -15,7 +15,7 @@ from app.users.schemas import UserCreateRequestSchema, RegistrationAsReferralReq
 @dataclass
 class UserRepository:
     db_session: AsyncSession
-    security: Security
+    security: SecurityConfig
 
     async def create_user(self, data: UserCreateRequestSchema) -> User:
         query = insert(User).values(
@@ -42,7 +42,7 @@ class UserRepository:
                                             expires_at: datetime):
         user = await self.get_user_by_email(user_email)
         if user.referral_code:
-            raise ReferralCodeForThisUserAlreadyExist(user_id=user.id)
+            raise ReferralCodeForThisUserAlreadyExist(user_email)
         query = update(User).where(User.email == user_email).values(
             referral_code=referral_code,
             referral_code_expires_at=expires_at
@@ -60,9 +60,9 @@ class UserRepository:
         user: User = await self.get_user_by_email(user_email)
 
         if not user.referral_code:
-            raise ReferralCodeNotExistException()
+            raise ReferralCodeNotExistException(user.email)
 
-        if user.referral_code_expires_at < datetime.utcnow():
+        if not user.referral_code_expires_at or user.referral_code_expires_at < datetime.utcnow():
             raise ReferralCodeExpiresException(user.email)
         return user.referral_code
 

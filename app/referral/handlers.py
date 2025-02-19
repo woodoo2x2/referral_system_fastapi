@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import EmailStr
 from starlette import status
 
 from app.dependency import get_referral_service, get_current_user_email
@@ -48,14 +49,14 @@ async def delete_my_referral_code_handler(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
 
 
-@router.post("/get_referral_code_by_email")
+@router.get("/{email}")
 async def get_referral_code_by_email(
-        data: GetReferralCodeByEmailRequestSchema,
+        email:EmailStr,
         referral_service: ReferralService = Depends(get_referral_service),
         user_email: str = Depends(get_current_user_email),
 ) -> ReferralCodeResponseSchema:
     try:
-        referral_code = await referral_service.get_referral_code(data.email)
+        referral_code = await referral_service.get_referral_code(email)
         return ReferralCodeResponseSchema(referral_code=referral_code)
     except ApplicationException as exception:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})

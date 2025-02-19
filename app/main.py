@@ -1,9 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from starlette.middleware.sessions import SessionMiddleware
+from starlette.requests import Request
 
 from app.auth.handlers import router as auth_router
 from app.referral.handlers import router as referral_router
 from app.settings import Settings
+
 
 app = FastAPI()
 settings = Settings()
@@ -14,3 +16,5 @@ app.add_middleware(
     secret_key=settings.SESSION_SECRET_KEY,
     session_cookie="session",
 )
+
+

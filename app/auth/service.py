@@ -5,7 +5,7 @@ from jose import jwt
 from pydantic import EmailStr
 
 from app.auth.exceptions import PasswordIsIncorrectException, AccessTokenExpiredException
-from app.auth.utils import Security
+
 from app.settings import Settings
 from app.users.exceptions import UserWithThisEmailNotExistException, UserWithThisEmailAlreadyExistException
 from app.users.models import User
@@ -13,12 +13,13 @@ from app.users.repository import UserRepository
 from app.users.schemas import LoginUserRequestSchema, UserSuccessfullyAuthorizedSchema, UserCreateRequestSchema, \
     RegistrationAsReferralRequestSchema
 from app.referral.exceptions import ReferralCodeNotExistException
+from app.auth.utils import SecurityConfig
 
 
 @dataclass
 class AuthService:
     user_repository: UserRepository
-    security: Security
+    security: SecurityConfig
     settings: Settings
 
     async def registration(self, data: UserCreateRequestSchema):

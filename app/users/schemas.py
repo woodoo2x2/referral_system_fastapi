@@ -29,8 +29,8 @@ class UserSuccessfullyAuthorizedSchema(BaseModel):
 
 
 class UserLoginResponse(BaseModel):
-    your_email: EmailStr
-    your_access_token: str
+    email: EmailStr
+    token: str
 
 
 class UserCreateReferralCodeResponseSchema(BaseModel):
