@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 from starlette.exceptions import HTTPException
 
+from app.api.service import HunterApiService
 from app.auth.service import AuthService
 
 from app.database.session import get_db_session
@@ -18,7 +19,8 @@ reusable_oauth2 = security.HTTPBearer()
 def get_app_security() -> SecurityConfig:
     return SecurityConfig()
 
-
+def get_hunter_api_service() -> HunterApiService:
+    return HunterApiService(settings=Settings())
 def get_user_repository(session: AsyncSession = Depends(get_db_session),
                         security: Security = Depends(get_app_security)
                         ) -> UserRepository:
@@ -28,10 +30,12 @@ def get_user_repository(session: AsyncSession = Depends(get_db_session),
 def get_auth_service(
         user_repository: UserRepository = Depends(get_user_repository),
         security: Security = Depends(get_app_security),
+        hunter_api_service: HunterApiService = Depends(get_hunter_api_service)
 ) -> AuthService:
     return AuthService(user_repository=user_repository,
                        security=security,
-                       settings=Settings())
+                       settings=Settings(),
+                       hunter_api_service=hunter_api_service)
 
 
 def get_referral_service(

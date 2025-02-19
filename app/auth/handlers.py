@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from starlette import status
 
+from app.api.exceptions import ExternalApiException
 from app.auth.schemas import ErrorSchema
 from app.auth.service import AuthService
 from app.dependency import get_auth_service
@@ -26,14 +27,14 @@ async def login_handler(
         auth_service: AuthService = Depends(get_auth_service)):
     try:
         user_data: UserSuccessfullyAuthorizedSchema = await auth_service.login(data)
-
+        return UserLoginResponse(
+            email=user_data.email,
+            token=user_data.access_token
+        )
     except ApplicationException as exception:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
 
-    return UserLoginResponse(
-        email=user_data.email,
-        token=user_data.access_token
-    )
+
 
 
 @router.post('/registration',
@@ -52,7 +53,8 @@ async def registration_handler(
         return UserResponseSchema.from_user(new_user)
     except ApplicationException as exception:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
-
+    except ExternalApiException as exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
 
 @router.post("/registration_as_referral")
 async def registration_as_referral_handler(
@@ -65,3 +67,5 @@ async def registration_as_referral_handler(
     except ApplicationException as exception:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
 
+    except ExternalApiException as exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})

@@ -4,16 +4,17 @@ from datetime import datetime, timedelta
 from jose import jwt
 from pydantic import EmailStr
 
+from app.api.exceptions import EmailVerificationByHunterApiException
+from app.api.service import HunterApiService
 from app.auth.exceptions import PasswordIsIncorrectException, AccessTokenExpiredException
-
+from app.auth.utils import SecurityConfig
+from app.referral.exceptions import ReferralCodeNotExistException
 from app.settings import Settings
 from app.users.exceptions import UserWithThisEmailNotExistException, UserWithThisEmailAlreadyExistException
 from app.users.models import User
 from app.users.repository import UserRepository
 from app.users.schemas import LoginUserRequestSchema, UserSuccessfullyAuthorizedSchema, UserCreateRequestSchema, \
     RegistrationAsReferralRequestSchema
-from app.referral.exceptions import ReferralCodeNotExistException
-from app.auth.utils import SecurityConfig
 
 
 @dataclass
@@ -21,19 +22,23 @@ class AuthService:
     user_repository: UserRepository
     security: SecurityConfig
     settings: Settings
+    hunter_api_service: HunterApiService
 
     async def registration(self, data: UserCreateRequestSchema):
+        await self.verify_with_email_hunter_api(data.email)
         await self.check_user_already_exist_with_this_email(data.email)
         new_user: User = await self.user_repository.create_user(data)
         return new_user
 
     async def registration_as_referral(self, data: RegistrationAsReferralRequestSchema):
+        await self.verify_with_email_hunter_api(data.email)
         await self.check_user_already_exist_with_this_email(data.email)
         user = await self.user_repository.get_user_by_referral_code(data.referral_code)
         if not user:
             raise ReferralCodeNotExistException()
         new_user: User = await self.user_repository.create_user_as_referral(data, user.id)
         return new_user
+
     async def login(self, data: LoginUserRequestSchema) -> UserSuccessfullyAuthorizedSchema:
         user: User | None = await self.user_repository.get_user_by_email(data.email)
         if not user:
@@ -77,4 +82,12 @@ class AuthService:
         payload = self.decode_jwt(token)
         return payload['email']
 
+    async def verify_with_email_hunter_api(self, email: str):
+        response_json = await self.hunter_api_service.verify_email(email)
+        if isinstance(response_json, str):
+            import json
+            response_json = json.loads(response_json)
 
+        verified = response_json.get('data', {}).get('status', '')
+        if verified != 'valid':
+            raise EmailVerificationByHunterApiException(email)
