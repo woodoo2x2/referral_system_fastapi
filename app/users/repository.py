@@ -35,7 +35,11 @@ class UserRepository:
         async with self.db_session as session:
             user = (await session.execute(query)).scalar_one_or_none()
         return user
-
+    async def get_user_by_user_id(self, user_id:int):
+        query = select(User).where(User.id == user_id)
+        async with self.db_session as session:
+            user = (await session.execute(query)).scalar_one_or_none()
+        return user
     async def create_referral_code_for_user(self,
                                             user_email: str,
                                             referral_code: str,
@@ -96,3 +100,11 @@ class UserRepository:
             await session.commit()
 
         return new_user
+
+    async def get_all_invited_users_by_referral_id(self, user_id: int):
+        query = select(User).where(User.inviter_id == user_id)
+        async with self.db_session as session:
+            result = await session.execute(query)
+            users = result.scalars().all()
+        return users
+

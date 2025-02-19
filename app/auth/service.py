@@ -77,3 +77,4 @@ class AuthService:
         payload = self.decode_jwt(token)
         return payload['email']
 
+

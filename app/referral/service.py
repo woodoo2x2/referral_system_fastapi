@@ -3,9 +3,10 @@ import string
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
-from app.referral.exceptions import DeleteNotExistedReferralCodeException
+from app.referral.exceptions import DeleteNotExistedReferralCodeException, UserWithThatIDNotExistException
 from app.users.models import User
 from app.users.repository import UserRepository
+from app.users.schemas import UserResponseSchema, AllUserReferralsResponseSchema
 
 
 @dataclass
@@ -33,3 +34,15 @@ class ReferralService:
             raise DeleteNotExistedReferralCodeException()
         await self.user_repository.delete_user_referral_code(user_email)
         return referral_code
+
+    async def get_all_invited_users_by_referral_id(self, user_id: int) -> AllUserReferralsResponseSchema:
+        referral = await self.user_repository.get_user_by_user_id(user_id)
+        if not referral:
+            raise UserWithThatIDNotExistException(user_id)
+        users = await self.user_repository.get_all_invited_users_by_referral_id(user_id)
+
+        return AllUserReferralsResponseSchema(
+            referrer_id=referral.id,
+            referrer_email=referral.email,
+            referred_users=[UserResponseSchema.from_user(user) for user in users]
+        )

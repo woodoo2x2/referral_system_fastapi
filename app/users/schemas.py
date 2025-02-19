@@ -1,3 +1,5 @@
+from typing import List
+
 from pydantic import BaseModel, EmailStr
 
 from app.users.models import User
@@ -14,7 +16,7 @@ class UserResponseSchema(BaseModel):
     email: EmailStr
 
     @classmethod
-    def from_database(cls, user: User) -> 'UserResponseSchema':
+    def from_user(cls, user: User) -> 'UserResponseSchema':
         return cls(id=user.id, email=user.email)
 
 
@@ -60,3 +62,9 @@ class RegistrationAsReferralResponseSchema(BaseModel):
     @classmethod
     def from_user(cls, user: User) -> 'RegistrationAsReferralResponseSchema':
         return cls(id=user.id, email=user.email, inviter_id=user.id)
+
+
+class AllUserReferralsResponseSchema(BaseModel):
+    referrer_id: int
+    referrer_email: EmailStr
+    referred_users: List[UserResponseSchema]

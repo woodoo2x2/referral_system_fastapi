@@ -49,7 +49,7 @@ async def registration_handler(
 ):
     try:
         new_user = await auth_service.registration(data)
-        return UserResponseSchema.from_database(new_user)
+        return UserResponseSchema.from_user(new_user)
     except ApplicationException as exception:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
 
@@ -64,3 +64,4 @@ async def registration_as_referral_handler(
         return RegistrationAsReferralResponseSchema.from_user(new_user)
     except ApplicationException as exception:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
+

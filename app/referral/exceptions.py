@@ -36,3 +36,12 @@ class ReferralCodeExpiresException(ApplicationException):
     @property
     def message(self):
         return f"Referral code user with emai:{self.user_email} is expired"
+
+
+@dataclass(frozen=True, eq=False)
+class UserWithThatIDNotExistException(ApplicationException):
+    user_id: int
+
+    @property
+    def message(self):
+        return f"User with id {self.user_id} not registred"

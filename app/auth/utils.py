@@ -1,7 +1,4 @@
-from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
-
-
 
 
 class SecurityConfig:
