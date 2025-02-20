@@ -55,7 +55,7 @@ class UserRepository:
 
     async def create_referral_code_for_user(
         self, user_email: str, referral_code: str, expires_at: datetime
-    )-> User:
+    ) -> User:
         user = await self.get_user_by_email(user_email)
         if user.referral_code:
             raise ReferralCodeForThisUserAlreadyExist(user_email)
@@ -114,7 +114,9 @@ class UserRepository:
 
         return new_user
 
-    async def get_all_invited_users_by_referral_id(self, user_id: int) -> Iterable[User]:
+    async def get_all_invited_users_by_referral_id(
+        self, user_id: int
+    ) -> Iterable[User]:
         query = select(User).where(User.inviter_id == user_id)
         async with self.db_session as session:
             result = await session.execute(query)

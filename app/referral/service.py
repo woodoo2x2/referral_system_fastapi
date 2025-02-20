@@ -26,7 +26,9 @@ class ReferralService:
     def generate_referral_code() -> str:
         return "".join(random.choices(string.ascii_letters + string.digits, k=8))
 
-    async def create_referral_code(self, user_email: str, lifetime_minutes: int) -> User:
+    async def create_referral_code(
+        self, user_email: str, lifetime_minutes: int
+    ) -> User:
         expires_at = datetime.utcnow() + timedelta(minutes=lifetime_minutes)
 
         referral_code = self.generate_referral_code()

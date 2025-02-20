@@ -25,8 +25,8 @@ class EmailCheckSchema(BaseModel):
 
 @app.post("/test_api")
 async def check_api(
-        data: EmailCheckSchema,
-        hunter_api_service: HunterApiService = Depends(get_hunter_api_service),
+    data: EmailCheckSchema,
+    hunter_api_service: HunterApiService = Depends(get_hunter_api_service),
 ):
     response = await hunter_api_service.verify_email(data.email)
     return response

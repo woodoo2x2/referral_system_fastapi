@@ -45,7 +45,9 @@ class AuthService:
         new_user: User = await self.user_repository.create_user(data)
         return new_user
 
-    async def registration_as_referral(self, data: RegistrationAsReferralRequestSchema) -> User:
+    async def registration_as_referral(
+        self, data: RegistrationAsReferralRequestSchema
+    ) -> User:
         await self.verify_with_email_hunter_api(data.email)
         await self.check_user_already_exist_with_this_email(data.email)
         user = await self.user_repository.get_user_by_referral_code(data.referral_code)
@@ -108,9 +110,12 @@ class AuthService:
 
         if isinstance(response_json, str):
             response_json = json.loads(response_json)
+            status = response_json.get("data", {}).get("status")
+        elif isinstance(response_json, dict):
+            status = response_json.get("data", {}).get("status")
         else:
+            print(response_json, type(response_json))
             raise EmailVerificationByHunterApiException(email)
-        status = response_json.get("data", {}).get("status")
 
-        if status == "invalid":
+        if status == "invalid" or status == "disposable":
             raise EmailVerificationByHunterApiException(email)

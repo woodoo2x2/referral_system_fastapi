@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "postgresql+asyncpg://postgres:root@localhost/referral_db"
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:root@db:5432/referral_db"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     JWT_SECRET_KEY: str = "your-secret-key"
     JWT_DECODE_ALGORITHM: str = "HS256"
@@ -13,5 +13,5 @@ class Settings(BaseSettings):
     EMAIL_HUNTER_API_KEY: str = "28a58ab708151ba6a53b9d45716f9d8c84a1ef2b"
     EMAIL_HUNTER_BASE_URL: str = "https://api.hunter.io/v2/email-verifier"
 
-    REDIS_URL: str = "redis://localhost:6379"
+    REDIS_URL: str = "redis://redis:6379"
     REDIS_EXPIRE_CACHE_SECONDS: int = 3600

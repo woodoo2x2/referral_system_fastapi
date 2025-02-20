@@ -11,24 +11,25 @@ from app.referral.schemas import (
 from app.referral.service import ReferralService
 from app.users.schemas import AllUserReferralsResponseSchema
 from app.users.schemas import UserCreateReferralCodeResponseSchema
-from auth.schemas import ErrorSchema
+from app.auth.schemas import ErrorSchema
 
 router = APIRouter(prefix="/referral", tags=["referral"])
 
 
-@router.post("/",
-             status_code=status.HTTP_201_CREATED,
-             description="Create referral code for user",
-             response_model=UserCreateReferralCodeResponseSchema,
-             responses={
-                 status.HTTP_201_CREATED: {"model": UserCreateReferralCodeResponseSchema},
-                 status.HTTP_400_BAD_REQUEST: {"model": ErrorSchema},
-             },
-             )
+@router.post(
+    "/",
+    status_code=status.HTTP_201_CREATED,
+    description="Create referral code for user",
+    response_model=UserCreateReferralCodeResponseSchema,
+    responses={
+        status.HTTP_201_CREATED: {"model": UserCreateReferralCodeResponseSchema},
+        status.HTTP_400_BAD_REQUEST: {"model": ErrorSchema},
+    },
+)
 async def create_referral_code_for_me_handler(
-        data: CreateReferralCodeRequestSchema,
-        referral_service: ReferralService = Depends(get_referral_service),
-        user_email: str = Depends(get_current_user_email),
+    data: CreateReferralCodeRequestSchema,
+    referral_service: ReferralService = Depends(get_referral_service),
+    user_email: str = Depends(get_current_user_email),
 ) -> UserCreateReferralCodeResponseSchema:
     try:
         updated_user = await referral_service.create_referral_code(
@@ -41,18 +42,19 @@ async def create_referral_code_for_me_handler(
         )
 
 
-@router.get("/",
-            status_code=status.HTTP_200_OK,
-            description="Get user referral code",
-            response_model=ReferralCodeResponseSchema,
-            responses={
-                status.HTTP_200_OK: {"model": ReferralCodeResponseSchema},
-                status.HTTP_400_BAD_REQUEST: {"model": ErrorSchema},
-            },
-            )
+@router.get(
+    "/",
+    status_code=status.HTTP_200_OK,
+    description="Get user referral code",
+    response_model=ReferralCodeResponseSchema,
+    responses={
+        status.HTTP_200_OK: {"model": ReferralCodeResponseSchema},
+        status.HTTP_400_BAD_REQUEST: {"model": ErrorSchema},
+    },
+)
 async def get_my_referral_code_handler(
-        referral_service: ReferralService = Depends(get_referral_service),
-        user_email: str = Depends(get_current_user_email),
+    referral_service: ReferralService = Depends(get_referral_service),
+    user_email: str = Depends(get_current_user_email),
 ) -> ReferralCodeResponseSchema:
     try:
         referral_code = await referral_service.get_referral_code(user_email)
@@ -63,13 +65,14 @@ async def get_my_referral_code_handler(
         )
 
 
-@router.delete("/",
-               status_code=status.HTTP_200_OK,
-               description="Delete user referral code",
-               )
+@router.delete(
+    "/",
+    status_code=status.HTTP_200_OK,
+    description="Delete user referral code",
+)
 async def delete_my_referral_code_handler(
-        referral_service: ReferralService = Depends(get_referral_service),
-        user_email: str = Depends(get_current_user_email),
+    referral_service: ReferralService = Depends(get_referral_service),
+    user_email: str = Depends(get_current_user_email),
 ):
     try:
         referral_code = await referral_service.delete_referral_code(user_email)
@@ -80,19 +83,20 @@ async def delete_my_referral_code_handler(
         )
 
 
-@router.get("/{email}",
-            status_code=status.HTTP_200_OK,
-            description="Get referral code by email",
-            response_model=ReferralCodeResponseSchema,
-            responses={
-                status.HTTP_200_OK: {"model": ReferralCodeResponseSchema},
-                status.HTTP_400_BAD_REQUEST: {"model": ErrorSchema},
-            },
-            )
+@router.get(
+    "/{email}",
+    status_code=status.HTTP_200_OK,
+    description="Get referral code by email",
+    response_model=ReferralCodeResponseSchema,
+    responses={
+        status.HTTP_200_OK: {"model": ReferralCodeResponseSchema},
+        status.HTTP_400_BAD_REQUEST: {"model": ErrorSchema},
+    },
+)
 async def get_referral_code_by_email(
-        email: EmailStr,
-        referral_service: ReferralService = Depends(get_referral_service),
-        user_email: str = Depends(get_current_user_email),
+    email: EmailStr,
+    referral_service: ReferralService = Depends(get_referral_service),
+    user_email: str = Depends(get_current_user_email),
 ) -> ReferralCodeResponseSchema:
     try:
         referral_code = await referral_service.get_referral_code(email)
@@ -103,19 +107,20 @@ async def get_referral_code_by_email(
         )
 
 
-@router.get("/all/{user_id}",
-            status_code=status.HTTP_200_OK,
-            description="Get invited users information",
-            response_model=AllUserReferralsResponseSchema,
-            responses={
-                status.HTTP_200_OK: {"model": AllUserReferralsResponseSchema},
-                status.HTTP_400_BAD_REQUEST: {"model": ErrorSchema},
-            },
-            )
+@router.get(
+    "/all/{user_id}",
+    status_code=status.HTTP_200_OK,
+    description="Get invited users information",
+    response_model=AllUserReferralsResponseSchema,
+    responses={
+        status.HTTP_200_OK: {"model": AllUserReferralsResponseSchema},
+        status.HTTP_400_BAD_REQUEST: {"model": ErrorSchema},
+    },
+)
 async def get_all_invited_users_by_referrer_id(
-        user_id: int,
-        referral_service: ReferralService = Depends(get_referral_service),
-        user_email: str = Depends(get_current_user_email),
+    user_id: int,
+    referral_service: ReferralService = Depends(get_referral_service),
+    user_email: str = Depends(get_current_user_email),
 ):
     try:
         users = await referral_service.get_all_invited_users_by_referral_id(user_id)

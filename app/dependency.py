@@ -27,22 +27,22 @@ def get_hunter_api_service() -> HunterApiService:
 
 
 async def get_redis_service(
-        redis: Redis = Depends(get_redis_connection),
+    redis: Redis = Depends(get_redis_connection),
 ) -> RedisService:
     return RedisService(redis=redis)
 
 
 def get_user_repository(
-        session: AsyncSession = Depends(get_db_session),
-        security: Security = Depends(get_app_security),
+    session: AsyncSession = Depends(get_db_session),
+    security: Security = Depends(get_app_security),
 ) -> UserRepository:
     return UserRepository(db_session=session, security=security)
 
 
 def get_auth_service(
-        user_repository: UserRepository = Depends(get_user_repository),
-        security: Security = Depends(get_app_security),
-        hunter_api_service: HunterApiService = Depends(get_hunter_api_service),
+    user_repository: UserRepository = Depends(get_user_repository),
+    security: Security = Depends(get_app_security),
+    hunter_api_service: HunterApiService = Depends(get_hunter_api_service),
 ) -> AuthService:
     return AuthService(
         user_repository=user_repository,
@@ -53,8 +53,8 @@ def get_auth_service(
 
 
 def get_referral_service(
-        user_repository: UserRepository = Depends(get_user_repository),
-        redis_service: RedisService = Depends(get_redis_service),
+    user_repository: UserRepository = Depends(get_user_repository),
+    redis_service: RedisService = Depends(get_redis_service),
 ):
     return ReferralService(
         user_repository=user_repository,
@@ -64,8 +64,8 @@ def get_referral_service(
 
 
 async def get_current_user_email(
-        token: security.http.HTTPAuthorizationCredentials = Security(reusable_oauth2),
-        auth_service: AuthService = Depends(get_auth_service),
+    token: security.http.HTTPAuthorizationCredentials = Security(reusable_oauth2),
+    auth_service: AuthService = Depends(get_auth_service),
 ) -> str:
     try:
         user_email = await auth_service.get_current_user_email(token.credentials)
