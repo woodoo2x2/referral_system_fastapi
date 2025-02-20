@@ -73,13 +73,13 @@ poetry install
 2. Инициализируйте базу данных:
 
 ```bash
-alembic init /migrations
+poetry run alembic init /migrations
 ```
 
 3. Обновить путь в `alembic.ini`
 
 ```file
-sqlalchemy.url = *Путь к БД*
+sqlalchemy.url =  postgresql://postgres:root@db:5432/referral_db
 ```
 
 4.Импортирвать модели в `migrations/env.py`
@@ -91,8 +91,12 @@ from app.database.base import Base
 
 target_metadata = Base.metadata
 ```
+5. Выполните первичную миграцию 
 
-5.Запустите приложение с Docker:
+```bash
+alembic revision --autogenerate -m "Init migration"`
+``` 
+6.Запустите приложение с Docker:
 
 ```bash
 docker compose up -d
