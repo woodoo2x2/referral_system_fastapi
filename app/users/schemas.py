@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Self
 
 from pydantic import BaseModel, EmailStr
 
@@ -16,7 +16,7 @@ class UserResponseSchema(BaseModel):
     email: EmailStr
 
     @classmethod
-    def from_user(cls, user: User) -> "UserResponseSchema":
+    def from_user(cls, user: User) -> Self:
         return cls(id=user.id, email=user.email)
 
 
@@ -41,7 +41,7 @@ class UserCreateReferralCodeResponseSchema(BaseModel):
     your_referral_code: str
 
     @classmethod
-    def from_user(cls, user: User):
+    def from_user(cls, user: User) -> Self:
         return cls(
             your_id=user.id,
             your_email=user.email,
@@ -62,7 +62,7 @@ class RegistrationAsReferralResponseSchema(BaseModel):
     inviter_id: int
 
     @classmethod
-    def from_user(cls, user: User) -> "RegistrationAsReferralResponseSchema":
+    def from_user(cls, user: User) -> Self:
         return cls(id=user.id, email=user.email, inviter_id=user.id)
 
 

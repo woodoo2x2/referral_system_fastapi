@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer
 from starlette import status
 
 from app.api.exceptions import ExternalApiException
@@ -31,7 +30,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
     },
 )
 async def login_handler(
-    data: LoginUserRequestSchema, auth_service: AuthService = Depends(get_auth_service)
+        data: LoginUserRequestSchema, auth_service: AuthService = Depends(get_auth_service)
 ):
     try:
         user_data: UserSuccessfullyAuthorizedSchema = await auth_service.login(data)
@@ -52,7 +51,7 @@ async def login_handler(
     },
 )
 async def registration_handler(
-    data: UserCreateRequestSchema, auth_service: AuthService = Depends(get_auth_service)
+        data: UserCreateRequestSchema, auth_service: AuthService = Depends(get_auth_service)
 ):
     try:
         new_user = await auth_service.registration(data)
@@ -69,8 +68,8 @@ async def registration_handler(
 
 @router.post("/registration_as_referral")
 async def registration_as_referral_handler(
-    data: RegistrationAsReferralRequestSchema,
-    auth_service: AuthService = Depends(get_auth_service),
+        data: RegistrationAsReferralRequestSchema,
+        auth_service: AuthService = Depends(get_auth_service),
 ) -> RegistrationAsReferralResponseSchema:
     try:
         new_user = await auth_service.registration_as_referral(data)

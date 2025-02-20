@@ -1,9 +1,9 @@
 from dataclasses import dataclass
-from typing import Dict, Any
 
-from app.api.exceptions import HunterApiResponseException, ExternalApiException
-from app.settings import Settings
 import httpx
+
+from app.api.exceptions import HunterApiResponseException
+from app.settings import Settings
 
 
 @dataclass

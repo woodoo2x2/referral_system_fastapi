@@ -6,7 +6,10 @@ from fastapi import HTTPException
 from jose import jwt
 from pydantic import EmailStr
 
-from app.api.exceptions import EmailVerificationByHunterApiException, ExternalApiException
+from app.api.exceptions import (
+    EmailVerificationByHunterApiException,
+    ExternalApiException,
+)
 from app.api.service import HunterApiService
 from app.auth.exceptions import (
     PasswordIsIncorrectException,
@@ -36,13 +39,13 @@ class AuthService:
     settings: Settings
     hunter_api_service: HunterApiService
 
-    async def registration(self, data: UserCreateRequestSchema):
+    async def registration(self, data: UserCreateRequestSchema) -> User:
         await self.verify_with_email_hunter_api(data.email)
         await self.check_user_already_exist_with_this_email(data.email)
         new_user: User = await self.user_repository.create_user(data)
         return new_user
 
-    async def registration_as_referral(self, data: RegistrationAsReferralRequestSchema):
+    async def registration_as_referral(self, data: RegistrationAsReferralRequestSchema) -> User:
         await self.verify_with_email_hunter_api(data.email)
         await self.check_user_already_exist_with_this_email(data.email)
         user = await self.user_repository.get_user_by_referral_code(data.referral_code)
@@ -100,7 +103,7 @@ class AuthService:
         payload = self.decode_jwt(token)
         return payload["email"]
 
-    async def verify_with_email_hunter_api(self, email: str):
+    async def verify_with_email_hunter_api(self, email: str) -> None:
         response_json = await self.hunter_api_service.verify_email(email)
 
         if isinstance(response_json, str):
@@ -109,5 +112,5 @@ class AuthService:
             raise EmailVerificationByHunterApiException(email)
         status = response_json.get("data", {}).get("status")
 
-        if status =='invalid':
+        if status == "invalid":
             raise EmailVerificationByHunterApiException(email)

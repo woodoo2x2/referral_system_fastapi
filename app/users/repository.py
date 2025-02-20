@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Iterable
 
 from pydantic import EmailStr
 from sqlalchemy import insert, select, update
@@ -40,13 +41,13 @@ class UserRepository:
 
         return new_user
 
-    async def get_user_by_email(self, email: EmailStr | str) -> User:
+    async def get_user_by_email(self, email: EmailStr | str) -> User | None:
         query = select(User).where(User.email == email)
         async with self.db_session as session:
             user = (await session.execute(query)).scalar_one_or_none()
         return user
 
-    async def get_user_by_user_id(self, user_id: int):
+    async def get_user_by_user_id(self, user_id: int) -> User | None:
         query = select(User).where(User.id == user_id)
         async with self.db_session as session:
             user = (await session.execute(query)).scalar_one_or_none()
@@ -54,7 +55,7 @@ class UserRepository:
 
     async def create_referral_code_for_user(
         self, user_email: str, referral_code: str, expires_at: datetime
-    ):
+    )-> User:
         user = await self.get_user_by_email(user_email)
         if user.referral_code:
             raise ReferralCodeForThisUserAlreadyExist(user_email)
@@ -72,13 +73,13 @@ class UserRepository:
         )
         return updated_user.scalar()
 
-    async def get_referral_code_by_user_email(self, user_email: str):
+    async def get_referral_code_by_user_email(self, user_email: str) -> str:
         query = select(User).where(User.email == user_email)
         async with self.db_session as session:
             user = (await session.execute(query)).scalar_one_or_none()
         return user.referral_code
 
-    async def delete_user_referral_code(self, user_email: str):
+    async def delete_user_referral_code(self, user_email: str) -> None:
         query = (
             update(User)
             .where(User.email == user_email)
@@ -113,7 +114,7 @@ class UserRepository:
 
         return new_user
 
-    async def get_all_invited_users_by_referral_id(self, user_id: int):
+    async def get_all_invited_users_by_referral_id(self, user_id: int) -> Iterable[User]:
         query = select(User).where(User.inviter_id == user_id)
         async with self.db_session as session:
             result = await session.execute(query)

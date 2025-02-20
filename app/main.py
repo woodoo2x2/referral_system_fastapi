@@ -1,13 +1,12 @@
 from fastapi import FastAPI, Depends
 from pydantic import BaseModel, EmailStr
 from starlette.middleware.sessions import SessionMiddleware
-from starlette.requests import Request
 
 from app.api.service import HunterApiService
 from app.auth.handlers import router as auth_router
+from app.dependency import get_hunter_api_service
 from app.referral.handlers import router as referral_router
 from app.settings import Settings
-from app.dependency import get_hunter_api_service
 
 app = FastAPI()
 settings = Settings()
@@ -26,8 +25,8 @@ class EmailCheckSchema(BaseModel):
 
 @app.post("/test_api")
 async def check_api(
-    data: EmailCheckSchema,
-    hunter_api_service: HunterApiService = Depends(get_hunter_api_service),
+        data: EmailCheckSchema,
+        hunter_api_service: HunterApiService = Depends(get_hunter_api_service),
 ):
     response = await hunter_api_service.verify_email(data.email)
     return response

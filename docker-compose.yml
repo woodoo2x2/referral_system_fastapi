@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    container_name: referral-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/db_name
+      - REDIS_URL=redis://redis:6379/0
+
+  db:
+    image: postgres:latest
+    container_name: referral-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: db_name
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:latest
+    container_name: referral-redis
+    ports:
+      - "6379:6379"
+
+  alembic:
+    build: .
+    container_name: alembic-migrations
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/db_name
+    volumes:
+      - .:/app
+
+volumes:
+  postgres_data:

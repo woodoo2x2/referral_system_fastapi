@@ -26,7 +26,7 @@ class ReferralService:
     def generate_referral_code() -> str:
         return "".join(random.choices(string.ascii_letters + string.digits, k=8))
 
-    async def create_referral_code(self, user_email: str, lifetime_minutes: int):
+    async def create_referral_code(self, user_email: str, lifetime_minutes: int) -> User:
         expires_at = datetime.utcnow() + timedelta(minutes=lifetime_minutes)
 
         referral_code = self.generate_referral_code()
@@ -46,7 +46,7 @@ class ReferralService:
 
         return user
 
-    async def get_referral_code(self, user_email: str):
+    async def get_referral_code(self, user_email: str) -> str:
         cache_key = f"referral_code:{user_email}"
 
         cached_data = await self.redis_service.get(cache_key)
@@ -80,7 +80,7 @@ class ReferralService:
         )
         return user.referral_code
 
-    async def delete_referral_code(self, user_email: str):
+    async def delete_referral_code(self, user_email: str) -> str:
         referral_code = await self.user_repository.get_referral_code_by_user_email(
             user_email
         )
