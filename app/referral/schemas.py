@@ -12,9 +12,11 @@ class ReferralCodeResponseSchema(BaseModel):
 
 
 class CreateReferralCodeRequestSchema(BaseModel):
-    lifetime_minutes: Optional[int] = Field(default=settings.REFERRAL_CODE_DEFAULT_LIFETIME_MINUTES,
-                                            ge=1,
-                                            description="Lifetime of referral code")
+    lifetime_minutes: Optional[int] = Field(
+        default=settings.REFERRAL_CODE_DEFAULT_LIFETIME_MINUTES,
+        ge=1,
+        description="Lifetime of referral code",
+    )
 
 
 class GetReferralCodeByEmailRequestSchema(BaseModel):

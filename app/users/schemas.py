@@ -16,7 +16,7 @@ class UserResponseSchema(BaseModel):
     email: EmailStr
 
     @classmethod
-    def from_user(cls, user: User) -> 'UserResponseSchema':
+    def from_user(cls, user: User) -> "UserResponseSchema":
         return cls(id=user.id, email=user.email)
 
 
@@ -42,9 +42,11 @@ class UserCreateReferralCodeResponseSchema(BaseModel):
 
     @classmethod
     def from_user(cls, user: User):
-        return cls(your_id=user.id,
-                   your_email=user.email,
-                   your_referral_code=user.referral_code)
+        return cls(
+            your_id=user.id,
+            your_email=user.email,
+            your_referral_code=user.referral_code,
+        )
 
 
 class RegistrationAsReferralRequestSchema(BaseModel):
@@ -60,7 +62,7 @@ class RegistrationAsReferralResponseSchema(BaseModel):
     inviter_id: int
 
     @classmethod
-    def from_user(cls, user: User) -> 'RegistrationAsReferralResponseSchema':
+    def from_user(cls, user: User) -> "RegistrationAsReferralResponseSchema":
         return cls(id=user.id, email=user.email, inviter_id=user.id)
 
 

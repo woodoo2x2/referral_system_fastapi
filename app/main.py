@@ -19,11 +19,15 @@ app.add_middleware(
     session_cookie="session",
 )
 
+
 class EmailCheckSchema(BaseModel):
     email: EmailStr
 
-@app.post('/test_api')
-async def check_api(data: EmailCheckSchema,
-                    hunter_api_service: HunterApiService = Depends(get_hunter_api_service)):
+
+@app.post("/test_api")
+async def check_api(
+    data: EmailCheckSchema,
+    hunter_api_service: HunterApiService = Depends(get_hunter_api_service),
+):
     response = await hunter_api_service.verify_email(data.email)
     return response

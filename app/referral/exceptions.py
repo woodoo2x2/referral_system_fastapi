@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from app.exceptions import ApplicationException
 
 
-@dataclass(frozen=True, eq=False)
+@dataclass
 class ReferralCodeNotExistException(ApplicationException):
     email: str
 
@@ -12,7 +12,7 @@ class ReferralCodeNotExistException(ApplicationException):
         return f"Referral code for user with email - {self.email} not exists"
 
 
-@dataclass(frozen=True, eq=False)
+@dataclass
 class ReferralCodeForThisUserAlreadyExist(ApplicationException):
     email: str
 
@@ -21,15 +21,14 @@ class ReferralCodeForThisUserAlreadyExist(ApplicationException):
         return f"Referral code for user with email - {self.email} already exist"
 
 
-@dataclass(frozen=True, eq=False)
+@dataclass
 class DeleteNotExistedReferralCodeException(ApplicationException):
-
     @property
     def message(self):
         return f"This user not have referral code"
 
 
-@dataclass(frozen=True, eq=False)
+@dataclass
 class ReferralCodeExpiresException(ApplicationException):
     user_email: str
 
@@ -38,7 +37,7 @@ class ReferralCodeExpiresException(ApplicationException):
         return f"Referral code user with emai:{self.user_email} is expired"
 
 
-@dataclass(frozen=True, eq=False)
+@dataclass
 class UserWithThatIDNotExistException(ApplicationException):
     user_id: int
 

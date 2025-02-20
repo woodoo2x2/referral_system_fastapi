@@ -10,5 +10,8 @@ class Settings(BaseSettings):
 
     REFERRAL_CODE_DEFAULT_LIFETIME_MINUTES: int = 1440
 
-    EMAIL_HUNTER_API_KEY : str= '28a58ab708151ba6a53b9d45716f9d8c84a1ef2b'
+    EMAIL_HUNTER_API_KEY: str = "28a58ab708151ba6a53b9d45716f9d8c84a1ef2b"
     EMAIL_HUNTER_BASE_URL: str = "https://api.hunter.io/v2/email-verifier"
+
+    REDIS_URL: str = "redis://localhost:6379"
+    REDIS_EXPIRE_CACHE_SECONDS: int = 3600
